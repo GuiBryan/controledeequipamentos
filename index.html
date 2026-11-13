@@ -233,7 +233,7 @@ tr.row-afastado td.name-cell{text-decoration:line-through}
     </div>
   </div>
   <div class="dropdown-backdrop" id="dropdownBackdrop" onclick="closeDropdown();"></div>
-  <input type="file" id="fileBackupInput" accept=".json,application/json" style="display:none" onchange="handleImportBackupFile(event)">
+  <input type="file" id="fileBackupInput" accept=".txt,.json,text/plain,application/json" style="display:none" onchange="handleImportBackupFile(event)">
 </header>
 
 <main class="app-main">
@@ -484,16 +484,16 @@ tr.row-afastado td.name-cell{text-decoration:line-through}
 
       <div class="modal-subtitle">📤 Exportar</div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap">
-        <button class="btn-primary" onclick="exportBackup()">📥 Baixar backup (.json)</button>
+        <button class="btn-primary" onclick="exportBackup()">📥 Baixar backup (.txt)</button>
         <button class="btn-secondary-action" onclick="copyBackupJson()">📋 Copiar JSON</button>
       </div>
 
       <div class="modal-subtitle">📥 Importar</div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.6rem">
-        <button class="btn-secondary-action" onclick="document.getElementById('fileBackupInput').click()">📂 Escolher arquivo (.json)</button>
+        <button class="btn-secondary-action" onclick="document.getElementById('fileBackupInput').click()">📂 Escolher arquivo (.json ou .txt)</button>
         <button class="btn-secondary-action" onclick="importBackupFromText()">✅ Importar do texto abaixo</button>
       </div>
-      <textarea class="json-area" id="backupText" placeholder="Cole aqui o conteúdo do backup (.json) e clique em &quot;Importar do texto abaixo&quot;. Ideal para Power Apps, onde o download de arquivo pode estar bloqueado."></textarea>
+      <textarea class="json-area" id="backupText" placeholder="Cole aqui o conteúdo do backup (.json ou .txt."></textarea>
       <div class="help-text" style="margin-top:.6rem">A importação <b>mescla</b> os dados: colaboradores com a mesma matrícula são atualizados, os demais são adicionados. Nada é apagado por engano.</div>
     </div>
     <div class="modal-footer">
@@ -1475,8 +1475,14 @@ function openBackupModal(){
 }
 function exportBackup(){
   const json = JSON.stringify(buildBackupPayload(), null, 2);
-  downloadFile(json, 'backup-treinamentos', 'application/json');
-  showToast('Backup exportado (todos os turnos).');
+  const d = new Date();
+  const stamp = d.getFullYear()
+    + '-' + String(d.getMonth()+1).padStart(2,'0')
+    + '-' + String(d.getDate()).padStart(2,'0')
+    + '_' + String(d.getHours()).padStart(2,'0')
+    + '-' + String(d.getMinutes()).padStart(2,'0');
+  downloadFile(json, 'backup-treinamentos-iops_' + stamp + '.txt', 'text/plain;charset=utf-8');
+  showToast('Backup exportado em .txt (todos os turnos).');
 }
 function copyBackupJson(){
   const json = JSON.stringify(buildBackupPayload(), null, 2);
