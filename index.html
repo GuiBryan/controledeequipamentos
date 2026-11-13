@@ -1475,7 +1475,7 @@ function openBackupModal(){
 }
 function exportBackup(){
   const json = JSON.stringify(buildBackupPayload(), null, 2);
-  downloadFile(json, 'backup-treinamentos-iops.txt', 'application/json');
+  downloadFile(txt, 'backup-treinamentos.txt', 'application/txt');
   showToast('Backup exportado (todos os turnos).');
 }
 function copyBackupJson(){
