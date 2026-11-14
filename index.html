@@ -225,22 +225,21 @@ tr.row-afastado td.name-cell{text-decoration:line-through}
         <button class="shift-btn" id="shiftBtnT3" onclick="setShift('T3')">3º</button>
         <button class="shift-btn" id="shiftBtnALL" onclick="setShift('ALL')">Todos</button>
       </div>
-      <h1 class="header-title" id="headerTitle">CONTROLE DE TREINAMENTOS | 1º TURNO</h1>
+      <h1 class="header-title" id="headerTitle">CONTROLE DE TREINAMENTOS | OPERAÇÃO</h1>
     </div>
     <div class="header-actions">
       <button class="offline-badge" id="userBadge" onclick="openLoginModal()" title="Identificar-se" style="cursor:pointer;font-family:inherit">👤 Entrar</button>
-      <div class="offline-badge" id="cloudBadge" title="Somente este dispositivo.">💾 LOCAL</div>
+      <div class="offline-badge" id="cloudBadge" title="Somente este dispositivo.">💾</div>
       <div class="dropdown">
         <button class="btn-action" id="optionsBtn" onclick="toggleDropdown(event)">⚙️ Opções ▾</button>
         <div class="dropdown-menu" id="optionsMenu">
           <button class="dropdown-item dropdown-item-primary" onclick="openAddModal(); closeDropdown();">➕ Adicionar Colaborador</button>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="exportExcel(); closeDropdown();">📊 Exportar Excel</button>
           <button class="dropdown-item" onclick="triggerPrint(); closeDropdown();">🖨️ Imprimir / PDF</button>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item dropdown-item-primary" onclick="openBackupModal(); closeDropdown();">💾 Backup / Restauração…</button>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item dropdown-item-primary" onclick="openSyncModal(); closeDropdown();">☁️ Nuvem (Google Sheets)…</button>
+          <button class="dropdown-item dropdown-item-primary" onclick="openSyncModal(); closeDropdown();">☁️(Google Sheets)…</button>
         </div>
       </div>
     </div>
@@ -577,12 +576,12 @@ tr.row-afastado td.name-cell{text-decoration:line-through}
 <div class="modal-overlay" id="modalLogin">
   <div class="modal-box" style="max-width:520px">
     <div class="modal-header">
-      <h2 class="modal-title">👤 Quem está editando?</h2>
+      <h2 class="modal-title">👤 Permissão para <b>Editores</b></h2>
       <button class="btn-close-modal" onclick="closeModal('modalLogin')">×</button>
     </div>
     <div class="modal-body">
       <div class="help-text" style="margin-bottom:.9rem">
-        Informe seu e-mail corporativo. A permissão é conferida na aba <b>Editores</b> da planilha — quem não está na lista entra apenas para consulta.
+        Informe seu <b>Login.</b>
       </div>
       <div class="form-field full">
         <label>E-mail</label>
@@ -1960,7 +1959,7 @@ function updateCloudBadge(){
   if(!badge) return;
   const c = getSyncCfg();
   if(syncReady() && c.auto){
-    badge.textContent = '☁️ NUVEM';
+    badge.textContent = '☁️ ';
     badge.style.color = '#92D050';
     badge.title = 'Sincronizando com o Google Sheets.';
   } else if(syncReady()){
@@ -1968,7 +1967,7 @@ function updateCloudBadge(){
     badge.style.color = '#fff';
     badge.title = 'Nuvem configurada, envio automatico desligado.';
   } else {
-    badge.textContent = '💾 LOCAL';
+    badge.textContent = '💾 ';
     badge.style.color = '#fff';
     badge.title = 'Somente este dispositivo. Configure em ⚙️ > Nuvem.';
   }
