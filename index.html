@@ -233,13 +233,12 @@ tr.row-afastado td.name-cell{text-decoration:line-through}
       <div class="dropdown">
         <button class="btn-action" id="optionsBtn" onclick="toggleDropdown(event)">⚙️ Opções ▾</button>
         <div class="dropdown-menu" id="optionsMenu">
-          <button class="dropdown-item dropdown-item-primary" onclick="openAddModal(); closeDropdown();">➕ Adicionar Colaborador</button>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item" onclick="triggerPrint(); closeDropdown();">🖨️ Imprimir / PDF</button>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item dropdown-item-primary" onclick="openBackupModal(); closeDropdown();">💾 Backup / Restauração…</button>
+          <button class="dropdown-item dropdown-item-primary" onclick="openBackupModal(); closeDropdown();">💾 Backup</button>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item dropdown-item-primary" onclick="openSyncModal(); closeDropdown();">☁️(Google Sheets)…</button>
+          <button class="dropdown-item dropdown-item-primary" onclick="openSyncModal(); closeDropdown();">☁️</button>
         </div>
       </div>
     </div>
