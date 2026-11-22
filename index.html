@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2A3D5B">
+<title>Controle de Equipamentos | EPI-EPC</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --navy:#243F5E; --navy-d:#192d44; --laranja:#D2882A; --verde:#548235; --verde-l:#92D050;
+  --vermelho:#dc2626; --ambar:#f59e0b; --azul:#2E75B6;
+  --bg:#f4f6f9; --surface:#fff; --text:#1e293b; --muted:#64748b; --border:#e2e8f0; --radius:10px;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0;padding:0 0 3rem;-webkit-font-smoothing:antialiased}
+
+/* header */
+.app-header{background:var(--navy);border-bottom:2px solid var(--navy-d);color:#fff;padding:.8rem 1.3rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.hc{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.55rem}
+.badge{background:var(--verde-l);color:var(--navy);font-weight:700;font-size:1rem;padding:8px 15px;border-radius:7px;letter-spacing:.03em}
+.app-header h1{font-size:1rem;font-weight:600;margin:0;letter-spacing:.2px}
+.hact{display:flex;align-items:center;gap:.5rem}
+.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:7px;font-weight:600;font-size:.78rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+
+/* nav */
+main{max-width:1180px;margin:1.4rem auto 0;padding:0 1.3rem;display:flex;flex-direction:column;gap:1.1rem}
+.tabs{display:flex;gap:.45rem;flex-wrap:wrap;background:var(--surface);padding:.55rem;border-radius:var(--radius);box-shadow:0 1px 3px rgba(20,23,31,.08)}
+.tab{border:1px solid transparent;background:#f8fafc;color:var(--text);padding:8px 15px;border-radius:7px;font-weight:600;font-size:.84rem;cursor:pointer;font-family:inherit}
+.tab:hover{background:#eef2f7}
+.tab.active{background:var(--navy);color:#fff}
+
+/* painel */
+.panel{background:var(--surface);border-radius:var(--radius);box-shadow:0 1px 3px rgba(20,23,31,.08);padding:1.2rem 1.3rem}
+.panel h2{margin:0 0 .2rem;font-size:1.1rem;color:var(--navy);font-weight:700}
+.panel .sub{color:var(--muted);font-size:.86rem;margin:0 0 1rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end}
+.fld{display:flex;flex-direction:column;gap:.28rem;flex:1;min-width:150px}
+.fld label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fld input,.fld select,.fld textarea{border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-size:.88rem;font-family:inherit;background:#fff;color:var(--text);width:100%}
+.fld input:focus,.fld select:focus{outline:2px solid #8DB4E2;outline-offset:-1px}
+.btn{border:none;border-radius:7px;padding:9px 17px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-pri{background:var(--verde-l);color:var(--navy)}
+.btn-pri:hover{background:#a4d962}
+.btn-sec{background:#f1f5f9;color:var(--text);border:1px solid var(--border)}
+.btn-sec:hover{background:#e2e8f0}
+.btn-danger{background:var(--vermelho);color:#fff}
+.btn-sm{padding:5px 11px;font-size:.76rem}
+
+/* estado vazio */
+.vazio{text-align:center;padding:2.6rem 1rem;border:2px dashed #c3d2e6;border-radius:10px;background:#f8fafc}
+.vazio .ico{font-size:2.2rem;margin-bottom:.5rem}
+.vazio h3{margin:0 0 .4rem;font-size:1rem;color:var(--navy)}
+.vazio p{margin:0 0 1rem;color:var(--muted);font-size:.87rem;max-width:430px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+/* lista */
+.lista{display:flex;flex-direction:column;gap:.55rem}
+.item{border:1px solid var(--border);border-radius:9px;padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:.8rem;background:#fff;flex-wrap:wrap}
+.item .esq{display:flex;flex-direction:column;gap:.15rem;min-width:0;flex:1}
+.item .nome{font-weight:700;font-size:.92rem;color:var(--navy)}
+.item .meta{font-size:.76rem;color:var(--muted);display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.pill{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.02em}
+.p-ok{background:#e7f6d8;color:#3f6212}
+.p-vazio{background:#fef3c7;color:#92400e}
+.p-info{background:#e4effa;color:#345e88}
+.acoes{display:flex;gap:.35rem;flex-shrink:0}
+
+/* checklist builder */
+.chk-item{display:flex;gap:.55rem;align-items:center;padding:.5rem .65rem;border:1px solid var(--border);border-radius:7px;margin-bottom:.4rem;background:#fff}
+.chk-item input[type=text]{flex:1;border:none;background:none;font-size:.87rem;font-family:inherit;padding:2px;color:var(--text)}
+.chk-item input[type=text]:focus{outline:none;border-bottom:1px solid #8DB4E2}
+.chk-item .num{font-size:.72rem;font-weight:700;color:var(--muted);min-width:16px}
+.chk-item label.ob{display:flex;align-items:center;gap:.3rem;font-size:.74rem;font-weight:600;color:var(--muted);white-space:nowrap;cursor:pointer}
+.chk-item .del{background:none;border:none;color:var(--vermelho);cursor:pointer;font-size:1.05rem;padding:0 4px;line-height:1}
+
+/* toast */
+.toasts{position:fixed;bottom:18px;right:18px;z-index:900;display:flex;flex-direction:column;gap:.45rem}
+.toast{background:#0f172a;color:#fff;padding:10px 15px;border-radius:8px;font-size:.84rem;font-weight:600;box-shadow:0 8px 22px rgba(0,0,0,.25);border-left:4px solid var(--verde-l);animation:in .2s ease;max-width:330px;line-height:1.4}
+.toast.err{border-left-color:var(--vermelho)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* modal */
+.ov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:500;align-items:flex-start;justify-content:center;padding:5vh 1rem;overflow:auto}
+.ov.show{display:flex}
+.modal{background:#fff;border-radius:13px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:640px}
+.modal .mh{display:flex;justify-content:space-between;align-items:flex-start;padding:1.1rem 1.3rem .5rem;gap:.8rem}
+.modal .mh h3{margin:0;font-size:1.02rem;color:var(--navy);font-weight:700}
+.modal .mb{padding:.5rem 1.3rem 1rem;max-height:64vh;overflow:auto}
+.modal .mf{display:flex;justify-content:flex-end;gap:.55rem;padding:.8rem 1.3rem 1.1rem;border-top:1px solid var(--border);flex-wrap:wrap}
+.x{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--muted);line-height:1}
+.help{font-size:.79rem;color:var(--muted);line-height:1.6;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem}
+
+@media(max-width:640px){
+  .app-header{padding:.65rem .85rem}
+  .app-header h1{flex-basis:100%;font-size:.86rem}
+  main{padding:0 .85rem;margin-top:.9rem}
+  .tab{padding:7px 11px;font-size:.79rem}
+  .item{flex-direction:column;align-items:flex-start}
+  .acoes{width:100%}
+  .acoes .btn{flex:1}
+  .toasts{left:12px;right:12px;bottom:12px}
+  .toast{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="hc">
+    <div class="brand">
+      <span class="badge">EPI</span>
+      <h1>Controle de Equipamentos Sensíveis</h1>
+    </div>
+    <div class="hact">
+      <button class="hbtn" id="btnQuem" onclick="abrirLogin()">👤 Entrar</button>
+      <button class="hbtn" onclick="abrirBackup()">💾 Backup</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav class="tabs" id="tabs">
+    <button class="tab" data-t="painel" onclick="irPara('painel')">📊 Painel</button>
+    <button class="tab active" data-t="retirada" onclick="irPara('retirada')">📤 Retirar</button>
+    <button class="tab" data-t="devolucao" onclick="irPara('devolucao')">📥 Devolver</button>
+    <button class="tab" data-t="equip" onclick="irPara('equip')">🔧 Equipamentos</button>
+    <button class="tab" data-t="tipos" onclick="irPara('tipos')">📋 Tipos e Checklists</button>
+    <button class="tab" data-t="pessoas" onclick="irPara('pessoas')">👥 Pessoas</button>
+  </nav>
+
+  <section id="viewPainel" style="display:none"></section>
+  <section id="viewRetirada"></section>
+  <section id="viewDevolucao" style="display:none"></section>
+  <section id="viewTipos" style="display:none"></section>
+  <section id="viewEquip" style="display:none"></section>
+  <section id="viewPessoas" style="display:none"></section>
+</main>
+
+<!-- modal tipo+checklist -->
+<div class="ov" id="mTipo">
+  <div class="modal">
+    <div class="mh">
+      <h3 id="mTipoTit">Novo tipo de equipamento</h3>
+      <button class="x" onclick="fechar('mTipo')">×</button>
+    </div>
+    <div class="mb">
+      <div class="help" style="margin-bottom:.9rem">
+        Cadastre a <b>categoria</b> e os itens de conferência dela. Todo equipamento desse tipo
+        vai usar esta lista — você não repete o checklist a cada equipamento.
+      </div>
+      <div class="row">
+        <div class="fld">
+          <label>Nome do tipo *</label>
+          <input id="tNome" placeholder="Ex.: Detector Multigás">
+        </div>
+        <div class="fld" style="max-width:150px">
+          <label>Prazo padrão (dias) *</label>
+          <input id="tPrazo" type="number" min="1" value="1">
+        </div>
+      </div>
+      <div class="row" style="margin-top:.7rem">
+        <div class="fld">
+          <label>Localização padrão</label>
+          <input id="tLocal" placeholder="Ex.: Armário A2 · prateleira 3">
+        </div>
+      </div>
+
+      <div style="margin-top:1.1rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <label style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">
+            Itens do checklist
+          </label>
+          <button class="btn btn-sec btn-sm" onclick="addItem()">+ item</button>
+        </div>
+        <div id="tItens"></div>
+        <div class="help" style="margin-top:.5rem">
+          Marque <b>Obrigatório</b> no que impede a liberação se não for conferido.
+          Sem item obrigatório, o equipamento pode ser liberado com qualquer conferência.
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="fechar('mTipo')">Cancelar</button>
+      <button class="btn btn-pri" onclick="salvarTipo()">Salvar tipo</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal equipamento -->
+<div class="ov" id="mEquip">
+  <div class="modal">
+    <div class="mh">
+      <h3 id="mEquipTit">Novo equipamento</h3>
+      <button class="x" onclick="fechar('mEquip')">×</button>
+    </div>
+    <div class="mb">
+      <div class="row">
+        <div class="fld" style="max-width:170px">
+          <label>Tag *</label>
+          <input id="eTag" placeholder="EPI-0042" autocomplete="off">
+        </div>
+        <div class="fld">
+          <label>Tipo *</label>
+          <select id="eTipo" onchange="atualizaChecklistPreview()"></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:.7rem">
+        <div class="fld">
+          <label>Descrição</label>
+          <input id="eDesc" placeholder="Ex.: Detector Multigás Ventis Pro">
+        </div>
+        <div class="fld" style="max-width:180px">
+          <label>Nº de série</label>
+          <input id="eSerie" placeholder="8823-11">
+        </div>
+      </div>
+      <div class="row" style="margin-top:.7rem">
+        <div class="fld">
+          <label>Localização</label>
+          <input id="eLocal" placeholder="(herda do tipo)">
+        </div>
+        <div class="fld" style="max-width:150px">
+          <label>Prazo (dias)</label>
+          <input id="ePrazo" type="number" min="1" placeholder="(herda)">
+        </div>
+        <div class="fld" style="max-width:170px">
+          <label>Validade da inspeção</label>
+          <input id="eInsp" type="date">
+        </div>
+      </div>
+
+      <div style="margin-top:1.1rem">
+        <label style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">
+          Checklist que será aplicado
+        </label>
+        <div id="ePreview" style="margin-top:.45rem"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="fechar('mEquip')">Cancelar</button>
+      <button class="btn btn-pri" onclick="salvarEquip()">Salvar equipamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal pessoas -->
+<div class="ov" id="mPessoa">
+  <div class="modal">
+    <div class="mh">
+      <h3>Nova pessoa</h3>
+      <button class="x" onclick="fechar('mPessoa')">×</button>
+    </div>
+    <div class="mb">
+      <div class="row">
+        <div class="fld">
+          <label>E-mail @bunge.com *</label>
+          <input id="pEmail" type="email" placeholder="nome.sobrenome@bunge.com" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="fld">
+          <label>Nome *</label>
+          <input id="pNome" placeholder="Nome completo">
+        </div>
+      </div>
+      <div class="row" style="margin-top:.7rem">
+        <div class="fld">
+          <label>Área / turno</label>
+          <input id="pArea" placeholder="Operações · Turno B">
+        </div>
+        <div class="fld" style="max-width:190px">
+          <label>Perfil</label>
+          <select id="pPerfil">
+            <option value="colaborador">Colaborador (retira)</option>
+            <option value="atendente">Atendente (libera)</option>
+            <option value="supervisor">Supervisor</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="fechar('mPessoa')">Cancelar</button>
+      <button class="btn btn-pri" onclick="salvarPessoa()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal login -->
+<div class="ov" id="mLogin">
+  <div class="modal" style="max-width:460px">
+    <div class="mh">
+      <h3>Quem está no balcão?</h3>
+      <button class="x" onclick="fechar('mLogin')">×</button>
+    </div>
+    <div class="mb">
+      <div class="help" style="margin-bottom:.85rem">
+        Informe seu e-mail Bunge. A permissão vem da lista de atendentes cadastrados —
+        quem não está na lista abre o app, mas não cadastra nem movimenta.
+      </div>
+      <div class="fld">
+        <label>E-mail</label>
+        <input id="lEmail" type="email" placeholder="nome.sobrenome@bunge.com" autocomplete="off" spellcheck="false">
+      </div>
+      <div id="lMsg" style="font-size:.8rem;margin-top:.6rem;min-height:1.1rem"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="sair()" style="margin-right:auto">Sair</button>
+      <button class="btn btn-sec" onclick="fechar('mLogin')">Cancelar</button>
+      <button class="btn btn-pri" onclick="entrar()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal backup -->
+<div class="ov" id="mBackup">
+  <div class="modal" style="max-width:600px">
+    <div class="mh">
+      <h3>Backup e restauração</h3>
+      <button class="x" onclick="fechar('mBackup')">×</button>
+    </div>
+    <div class="mb">
+      <div id="bInfo" style="font-size:.84rem;color:var(--muted);margin-bottom:.9rem"></div>
+      <div class="help" style="margin-bottom:.9rem">
+        O backup contém as 9 tabelas em JSON. É o mesmo arquivo que servirá de carga
+        para o Power Apps depois.
+      </div>
+      <div class="row">
+        <button class="btn btn-pri" onclick="exportar()">⬇️ Baixar backup (.json)</button>
+        <button class="btn btn-sec" onclick="copiarJSON()">📋 Copiar JSON</button>
+      </div>
+      <div style="margin-top:1rem">
+        <label style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Restaurar</label>
+        <textarea id="bTxt" style="width:100%;min-height:90px;margin-top:.4rem;border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.72rem;background:#f8fafc" placeholder="Cole aqui o JSON do backup para restaurar"></textarea>
+        <button class="btn btn-sec" style="margin-top:.5rem" onclick="restaurar()">✅ Restaurar do texto</button>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="fechar('mBackup')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+
+'use strict';
+/* =====================================================================
+   CONTROLE DE EQUIPAMENTOS SENSÍVEIS — EPI / EPC
+   Fase 1: cadastro sem seed (tipo + checklist -> equipamento -> pessoa)
+
+   Armazenamento: IndexedDB (localStorage estoura com fotos)
+   Modelo identico ao que vira lista do SharePoint depois.
+   ===================================================================== */
+
+const DB_NOME = 'equip-controle';
+const DB_VER  = 1;
+const STORE   = 'tabelas';
+let db = null;
+
+// ---------- nomes das tabelas (viram listas do SharePoint) ----------
+const T = {
+  TIPOS: 'tipos',
+  ITENS: 'checklistItens',
+  EQUIPS: 'equipamentos',
+  PESSOAS: 'pessoas',
+  MOVS: 'movimentos',
+  RESP: 'respostas',
+  FOTOS: 'fotos',
+  AUDIT: 'auditoria'
+};
+
+// ---------- utils ----------
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, erro){
+  const d=document.createElement('div');
+  d.className='toast'+(erro?' err':'');
+  d.textContent=msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .25s';setTimeout(()=>d.remove(),260);},3200);
+}
+function abrir(id){ document.getElementById(id).classList.add('show'); }
+function fechar(id){ document.getElementById(id).classList.remove('show'); }
+
+// ---------- IndexedDB ----------
+function abrirDB(){
+  return new Promise((ok,erro)=>{
+    const r = indexedDB.open(DB_NOME, DB_VER);
+    r.onupgradeneeded = e=>{
+      const d = e.target.result;
+      Object.values(T).forEach(nome=>{
+        if(!d.objectStoreNames.contains(nome)) d.createObjectStore(nome,{keyPath:'id'});
+      });
+    };
+    r.onsuccess = e=>{ db = e.target.result; ok(db); };
+    r.onerror = e=>erro(e.target.error);
+  });
+}
+function put(tabela, obj){
+  return new Promise((ok,erro)=>{
+    const tx = db.transaction(tabela,'readwrite');
+    tx.objectStore(tabela).put(obj);
+    tx.oncomplete = ()=>ok(obj);
+    tx.onerror = e=>erro(e.target.error);
+  });
+}
+function del(tabela, id){
+  return new Promise((ok,erro)=>{
+    const tx = db.transaction(tabela,'readwrite');
+    tx.objectStore(tabela).delete(id);
+    tx.oncomplete = ()=>ok();
+    tx.onerror = e=>erro(e.target.error);
+  });
+}
+function todos(tabela){
+  return new Promise((ok,erro)=>{
+    const tx = db.transaction(tabela,'readonly');
+    const req = tx.objectStore(tabela).getAll();
+    req.onsuccess = ()=>ok(req.result||[]);
+    req.onerror = e=>erro(e.target.error);
+  });
+}
+
+// ---------- estado em memoria (cache das telas) ----------
+const S = {
+  tipos: [], itens: [], equips: [], pessoas: [],
+  movs: [], resps: [], fotos: [],
+  view: 'retirada',
+  editandoTipo: null,
+  itensForm: [],
+  usuario: null
+};
+
+function carregarTudo(){
+  return Promise.all([
+    todos(T.TIPOS), todos(T.ITENS), todos(T.EQUIPS), todos(T.PESSOAS),
+    todos(T.MOVS), todos(T.RESP), todos(T.FOTOS)
+  ]).then(([tipos,itens,equips,pessoas,movs,resps,fotos])=>{
+    S.tipos = tipos; S.itens = itens; S.equips = equips; S.pessoas = pessoas;
+    S.movs = movs; S.resps = resps; S.fotos = fotos;
+  });
+}
+
+// ---------- auditoria ----------
+function auditar(acao, entidade, detalhe){
+  put(T.AUDIT, {
+    id: uid(), quando: new Date().toISOString(),
+    quem: S.usuario ? S.usuario.email : '(sem identificacao)',
+    acao, entidade, detalhe: detalhe||''
+  }).catch(()=>{});
+}
+
+// ---------- login (trava de conveniencia) ----------
+function temPermissao(){
+  if(!S.usuario) return false;
+  const p = S.pessoas.find(x=>x.email===S.usuario.email);
+  return !!p && (p.perfil==='atendente' || p.perfil==='supervisor');
+}
+function abrirLogin(){
+  document.getElementById('lEmail').value = S.usuario ? S.usuario.email : '';
+  document.getElementById('lMsg').innerHTML = '';
+  abrir('mLogin');
+}
+function entrar(){
+  const email = (document.getElementById('lEmail').value||'').trim().toLowerCase();
+  const msg = document.getElementById('lMsg');
+  if(!/^[a-z0-9._-]+@bunge\.com$/i.test(email)){
+    msg.innerHTML='<span style="color:#dc2626">Informe um e-mail @bunge.com válido.</span>';
+    return;
+  }
+  const p = S.pessoas.find(x=>x.email===email);
+  if(!p){
+    msg.innerHTML='<span style="color:#dc2626">Este e-mail não está cadastrado em Pessoas. '
+      + 'Cadastre a pessoa como <b>atendente</b> primeiro.</span>';
+    return;
+  }
+  if(p.perfil==='colaborador'){
+    msg.innerHTML='<span style="color:#dc2626">Este e-mail é de colaborador (retira equipamento). '
+      + 'Para operar o balcão, o perfil precisa ser <b>atendente</b> ou <b>supervisor</b>.</span>';
+    return;
+  }
+  S.usuario = { email, nome: p.nome };
+  try{ localStorage.setItem('equip-usuario', email); }catch(e){}
+  msg.innerHTML='<span style="color:#1a7a55">Liberado como <b>'+p.perfil+'</b>.</span>';
+  setTimeout(()=>{ fechar('mLogin'); renderTudo(); }, 600);
+}
+function sair(){
+  S.usuario = null;
+  try{ localStorage.removeItem('equip-usuario'); }catch(e){}
+  fechar('mLogin'); renderTudo();
+  toast('Saiu do balcão.');
+}
+function renderUsuario(){
+  const b = document.getElementById('btnQuem');
+  if(!b) return;
+  b.textContent = S.usuario ? '👤 ' + S.usuario.email.split('@')[0] : '👤 Entrar';
+}
+
+// ---------- navegacao ----------
+const VIEWS = {painel:'Painel', retirada:'Retirada', devolucao:'Devolucao',
+               tipos:'Tipos', equip:'Equip', pessoas:'Pessoas'};
+function irPara(v){
+  S.view = v;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.t===v));
+  Object.keys(VIEWS).forEach(k=>{
+    const el = document.getElementById('view'+VIEWS[k]);
+    if(el) el.style.display = (k===v?'block':'none');
+  });
+  renderTudo();
+}
+
+// ---------- helpers de dados ----------
+function itensDoTipo(tipoId){
+  return S.itens.filter(i=>i.tipoId===tipoId).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+}
+function equipamentosDoTipo(tipoId){
+  return S.equips.filter(e=>e.tipoId===tipoId);
+}
+function nomeTipo(id){ const t=S.tipos.find(x=>x.id===id); return t?t.nome:'(tipo removido)'; }
+
+// ---------- RENDER: tipos ----------
+function renderTipos(){
+  const el = document.getElementById('viewTipos');
+  if(!S.tipos.length){
+    el.innerHTML = `
+      <div class="panel">
+        <div class="vazio">
+          <div class="ico">📋</div>
+          <h3>Nenhum tipo cadastrado</h3>
+          <p>Comece pelo <b>tipo</b>: é ele que carrega o checklist. Depois cadastre os
+             equipamentos e eles já nascem com a conferência certa.</p>
+          <button class="btn btn-pri" onclick="novoTipo()">+ Cadastrar o primeiro tipo</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const cards = S.tipos.map(t=>{
+    const its = itensDoTipo(t.id);
+    const ob = its.filter(i=>i.obrigatorio).length;
+    const eqs = equipamentosDoTipo(t.id).length;
+    return `
+      <div class="item">
+        <div class="esq">
+          <div class="nome">${esc(t.nome)}</div>
+          <div class="meta">
+            <span class="pill ${its.length?'p-ok':'p-vazio'}">${its.length} ${its.length===1?'item':'itens'}</span>
+            <span class="pill p-info">${ob} ${ob===1?'obrigatório':'obrigatórios'}</span>
+            <span>${eqs} equipamento${eqs===1?'':'s'}</span>
+            <span>prazo ${t.prazoPadraoDias} dia${t.prazoPadraoDias===1?'':'s'}</span>
+            ${t.localizacaoPadrao?'<span>· '+esc(t.localizacaoPadrao)+'</span>':''}
+          </div>
+        </div>
+        <div class="acoes">
+          <button class="btn btn-sec btn-sm" onclick="editarTipo('${t.id}')">Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirTipo('${t.id}')">Excluir</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div>
+          <h2>Tipos e checklists</h2>
+          <p class="sub">Cada tipo carrega os itens de conferência. O equipamento herda — você não repete.</p>
+        </div>
+        <button class="btn btn-pri" onclick="novoTipo()">+ Novo tipo</button>
+      </div>
+      <div class="lista">${cards}</div>
+    </div>`;
+}
+
+// ---------- modal tipo ----------
+function novoTipo(){
+  S.editandoTipo = null;
+  S.itensForm = [];
+  document.getElementById('mTipoTit').textContent = 'Novo tipo de equipamento';
+  document.getElementById('tNome').value = '';
+  document.getElementById('tPrazo').value = '1';
+  document.getElementById('tLocal').value = '';
+  addItem(); addItem(); addItem();
+  abrir('mTipo');
+}
+function editarTipo(id){
+  const t = S.tipos.find(x=>x.id===id); if(!t) return;
+  S.editandoTipo = id;
+  document.getElementById('mTipoTit').textContent = 'Editar tipo';
+  document.getElementById('tNome').value = t.nome;
+  document.getElementById('tPrazo').value = t.prazoPadraoDias;
+  document.getElementById('tLocal').value = t.localizacaoPadrao||'';
+  S.itensForm = itensDoTipo(id).map(i=>({id:i.id, texto:i.texto, obrigatorio:!!i.obrigatorio}));
+  renderItensForm();
+  abrir('mTipo');
+}
+function addItem(){
+  S.itensForm.push({id:uid(), texto:'', obrigatorio:true});
+  renderItensForm();
+  const inputs = document.querySelectorAll('#tItens input[type=text]');
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+function renderItensForm(){
+  const box = document.getElementById('tItens');
+  if(!S.itensForm.length){
+    box.innerHTML = '<div class="help">Nenhum item ainda. Clique em <b>+ item</b> para adicionar o primeiro.</div>';
+    return;
+  }
+  box.innerHTML = S.itensForm.map((it,i)=>`
+    <div class="chk-item">
+      <span class="num">${i+1}</span>
+      <input type="text" value="${esc(it.texto)}" placeholder="Ex.: Bump test nas últimas 24h"
+             oninput="atualizaItem(${i}, this.value)">
+      <label class="ob">
+        <input type="checkbox" ${it.obrigatorio?'checked':''} onchange="marcaObrig(${i}, this.checked)">
+        Obrigatório
+      </label>
+      <button class="del" onclick="removeItem(${i})" title="Remover">×</button>
+    </div>`).join('');
+}
+function atualizaItem(i,v){ S.itensForm[i].texto = v; }
+function marcaObrig(i,v){ S.itensForm[i].obrigatorio = v; }
+function removeItem(i){ S.itensForm.splice(i,1); renderItensForm(); }
+
+function salvarTipo(){
+  if(!temPermissao()){ toast('Identifique-se como atendente para cadastrar.', true); abrirLogin(); return; }
+  const nome = document.getElementById('tNome').value.trim();
+  const prazo = parseInt(document.getElementById('tPrazo').value,10);
+  const local = document.getElementById('tLocal').value.trim();
+  if(!nome){ toast('Informe o nome do tipo.', true); return; }
+  if(!(prazo>=1)){ toast('Prazo em dias precisa ser 1 ou mais.', true); return; }
+
+  const validos = S.itensForm.filter(i=>i.texto.trim());
+  if(!validos.length){ toast('Adicione pelo menos um item de checklist.', true); return; }
+
+  const tipoId = S.editandoTipo || uid();
+  const tipo = {
+    id: tipoId, nome, prazoPadraoDias: prazo, localizacaoPadrao: local,
+    ativo: true, criadoEm: new Date().toISOString()
+  };
+
+  // remove itens antigos deste tipo que sumiram do formulario
+  const manter = new Set(validos.map(v=>v.id));
+  const remover = S.itens.filter(i=>i.tipoId===tipoId && !manter.has(i.id));
+
+  Promise.all([
+    put(T.TIPOS, tipo),
+    ...validos.map((v,idx)=>put(T.ITENS, {
+      id: v.id, tipoId, ordem: idx+1, texto: v.texto.trim(),
+      obrigatorio: !!v.obrigatorio, ativo: true
+    })),
+    ...remover.map(r=>del(T.ITENS, r.id))
+  ]).then(()=>{
+    auditar(S.editandoTipo?'editou tipo':'criou tipo', 'tipo', nome);
+    fechar('mTipo');
+    toast(S.editandoTipo ? 'Tipo atualizado.' : 'Tipo cadastrado com '+validos.length+' item(ns).');
+    return carregarTudo();
+  }).then(()=>{ renderTudo(); }).catch(e=>{
+    console.error(e); toast('Falha ao salvar: '+e, true);
+  });
+}
+
+function excluirTipo(id){
+  const t = S.tipos.find(x=>x.id===id);
+  const eqs = equipamentosDoTipo(id).length;
+  if(eqs){
+    toast('Não dá para excluir: há '+eqs+' equipamento(s) deste tipo. Exclua ou mude o tipo deles antes.', true);
+    return;
+  }
+  if(!confirm('Excluir o tipo "'+t.nome+'" e o checklist dele? Esta ação não pode ser desfeita.')) return;
+  if(!temPermissao()){ toast('Identifique-se para excluir.', true); abrirLogin(); return; }
+
+  Promise.all([
+    del(T.TIPOS, id),
+    ...itensDoTipo(id).map(i=>del(T.ITENS, i.id))
+  ]).then(()=>{
+    auditar('excluiu tipo','tipo',t.nome);
+    toast('Tipo excluído.');
+    return carregarTudo();
+  }).then(renderTudo);
+}
+
+// ---------- RENDER: equipamentos ----------
+function renderEquip(){
+  const el = document.getElementById('viewEquip');
+  if(!S.tipos.length){
+    el.innerHTML = `<div class="panel"><div class="vazio">
+      <div class="ico">📋</div><h3>Cadastre um tipo primeiro</h3>
+      <p>O equipamento precisa de um tipo, porque é o tipo que carrega o checklist.</p>
+      <button class="btn btn-pri" onclick="irPara('tipos')">Ir para Tipos</button>
+    </div></div>`;
+    return;
+  }
+  if(!S.equips.length){
+    el.innerHTML = `<div class="panel"><div class="vazio">
+      <div class="ico">🔧</div><h3>Nenhum equipamento cadastrado</h3>
+      <p>Cadastre a tag física do equipamento. Ele já entra com o checklist do tipo
+         e aparece pronto para a retirada.</p>
+      <button class="btn btn-pri" onclick="novoEquip()">+ Cadastrar o primeiro equipamento</button>
+    </div></div>`;
+    return;
+  }
+  const cards = S.equips.map(e=>{
+    const t = S.tipos.find(x=>x.id===e.tipoId);
+    const its = itensDoTipo(e.tipoId);
+    return `
+      <div class="item">
+        <div class="esq">
+          <div class="nome">${esc(e.tag)} <span style="font-weight:400;color:var(--muted);font-size:.85rem">· ${esc(e.descricao||nomeTipo(e.tipoId))}</span></div>
+          <div class="meta">
+            <span class="pill p-info">${esc(nomeTipo(e.tipoId))}</span>
+            <span class="pill ${its.length?'p-ok':'p-vazio'}">${its.length} itens no checklist</span>
+            <span>prazo ${e.prazoDias||(t?t.prazoPadraoDias:'-')}d</span>
+            ${e.serie?'<span>série '+esc(e.serie)+'</span>':''}
+            ${e.localizacao?'<span>· '+esc(e.localizacao)+'</span>':''}
+            ${e.validadeInspecao?'<span>· inspeção '+e.validadeInspecao.split('-').reverse().join('/')+'</span>':''}
+          </div>
+        </div>
+        <div class="acoes">
+          <button class="btn btn-sec btn-sm" onclick="editarEquip('${e.id}')">Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirEquip('${e.id}')">Excluir</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div>
+          <h2>Equipamentos</h2>
+          <p class="sub">${S.equips.length} cadastrado(s). O checklist é herdado do tipo.</p>
+        </div>
+        <button class="btn btn-pri" onclick="novoEquip()">+ Novo equipamento</button>
+      </div>
+      <div class="lista">${cards}</div>
+    </div>`;
+}
+
+let equipEditando = null;
+function novoEquip(){
+  equipEditando = null;
+  document.getElementById('mEquipTit').textContent = 'Novo equipamento';
+  ['eTag','eDesc','eSerie','eLocal','ePrazo','eInsp'].forEach(id=>document.getElementById(id).value='');
+  const sel = document.getElementById('eTipo');
+  sel.innerHTML = S.tipos.map(t=>`<option value="${t.id}">${esc(t.nome)}</option>`).join('');
+  atualizaChecklistPreview();
+  abrir('mEquip');
+}
+function editarEquip(id){
+  const e = S.equips.find(x=>x.id===id); if(!e) return;
+  equipEditando = id;
+  document.getElementById('mEquipTit').textContent = 'Editar equipamento';
+  document.getElementById('eTag').value = e.tag;
+  document.getElementById('eDesc').value = e.descricao||'';
+  document.getElementById('eSerie').value = e.serie||'';
+  document.getElementById('eLocal').value = e.localizacao||'';
+  document.getElementById('ePrazo').value = e.prazoDias||'';
+  document.getElementById('eInsp').value = e.validadeInspecao||'';
+  const sel = document.getElementById('eTipo');
+  sel.innerHTML = S.tipos.map(t=>`<option value="${t.id}" ${t.id===e.tipoId?'selected':''}>${esc(t.nome)}</option>`).join('');
+  atualizaChecklistPreview();
+  abrir('mEquip');
+}
+function atualizaChecklistPreview(){
+  const tipoId = document.getElementById('eTipo').value;
+  const box = document.getElementById('ePreview');
+  const its = itensDoTipo(tipoId);
+  if(!its.length){
+    box.innerHTML = '<div class="help">Este tipo não tem itens de checklist. Volte em <b>Tipos</b> e adicione.</div>';
+    return;
+  }
+  box.innerHTML = its.map((i,n)=>`
+    <div class="chk-item" style="background:#f8fafc">
+      <span class="num">${n+1}</span>
+      <span style="flex:1;font-size:.87rem">${esc(i.texto)}</span>
+      ${i.obrigatorio?'<span class="pill p-vazio">obrigatório</span>':'<span class="pill p-ok">opcional</span>'}
+    </div>`).join('');
+}
+function salvarEquip(){
+  if(!temPermissao()){ toast('Identifique-se como atendente para cadastrar.', true); abrirLogin(); return; }
+  const tag = document.getElementById('eTag').value.trim().toUpperCase();
+  const tipoId = document.getElementById('eTipo').value;
+  if(!tag){ toast('Informe a tag do equipamento.', true); return; }
+  if(!tipoId){ toast('Escolha o tipo.', true); return; }
+  const dup = S.equips.find(x=>x.tag===tag && x.id!==equipEditando);
+  if(dup){ toast('Já existe um equipamento com a tag '+tag+'.', true); return; }
+  if(!itensDoTipo(tipoId).length){
+    toast('O tipo escolhido não tem checklist. Cadastre os itens antes.', true); return;
+  }
+  const prazoRaw = document.getElementById('ePrazo').value;
+  const obj = {
+    id: equipEditando || uid(),
+    tag, tipoId,
+    descricao: document.getElementById('eDesc').value.trim(),
+    serie: document.getElementById('eSerie').value.trim(),
+    localizacao: document.getElementById('eLocal').value.trim(),
+    prazoDias: prazoRaw ? parseInt(prazoRaw,10) : null,
+    validadeInspecao: document.getElementById('eInsp').value || '',
+    status: 'disponivel',
+    ativo: true,
+    criadoEm: new Date().toISOString()
+  };
+  put(T.EQUIPS, obj).then(()=>{
+    auditar(equipEditando?'editou equipamento':'criou equipamento','equipamento',tag);
+    fechar('mEquip');
+    toast(equipEditando?'Equipamento atualizado.':'Equipamento '+tag+' cadastrado.');
+    return carregarTudo();
+  }).then(renderTudo).catch(e=>toast('Falha: '+e,true));
+}
+function excluirEquip(id){
+  const e = S.equips.find(x=>x.id===id); if(!e) return;
+  if(!confirm('Excluir o equipamento '+e.tag+'? O histórico de movimentos fica órfão.')) return;
+  if(!temPermissao()){ toast('Identifique-se para excluir.', true); abrirLogin(); return; }
+  del(T.EQUIPS, id).then(()=>{
+    auditar('excluiu equipamento','equipamento',e.tag);
+    toast('Equipamento excluído.');
+    return carregarTudo();
+  }).then(renderTudo);
+}
+
+// ---------- RENDER: pessoas ----------
+function renderPessoas(){
+  const el = document.getElementById('viewPessoas');
+  const temAtendente = S.pessoas.some(p=>p.perfil==='atendente'||p.perfil==='supervisor');
+  const cards = S.pessoas.map(p=>`
+    <div class="item">
+      <div class="esq">
+        <div class="nome">${esc(p.nome)}</div>
+        <div class="meta">
+          <span>${esc(p.email)}</span>
+          <span class="pill ${p.perfil==='colaborador'?'p-info':'p-ok'}">${p.perfil}</span>
+          ${p.area?'<span>· '+esc(p.area)+'</span>':''}
+        </div>
+      </div>
+      <div class="acoes">
+        <button class="btn btn-danger btn-sm" onclick="excluirPessoa('${p.id}')">Excluir</button>
+      </div>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div>
+          <h2>Pessoas</h2>
+          <p class="sub">Colaboradores retiram; atendentes liberam. A permissão do balcão vem daqui.</p>
+        </div>
+        <button class="btn btn-pri" onclick="abrir('mPessoa')">+ Nova pessoa</button>
+      </div>
+      ${S.pessoas.length? '<div class="lista">'+cards+'</div>' : `
+        <div class="vazio">
+          <div class="ico">👥</div>
+          <h3>Ninguém cadastrado</h3>
+          <p>Cadastre primeiro <b>você</b>, como atendente. Sem atendente, o app não libera
+             cadastro nem movimentação.</p>
+          <button class="btn btn-pri" onclick="abrir('mPessoa')">+ Cadastrar a primeira pessoa</button>
+        </div>`}
+      ${S.pessoas.length && !temAtendente ? `
+        <div class="help" style="margin-top:1rem;border-color:#fcd34d;background:#fffaf0">
+          <b>Atenção:</b> nenhuma pessoa tem perfil <b>atendente</b> ou <b>supervisor</b>.
+          Ninguém conseguirá operar o balcão até cadastrar um.
+        </div>`:''}
+    </div>`;
+}
+function salvarPessoa(){
+  const email = (document.getElementById('pEmail').value||'').trim().toLowerCase();
+  const nome = document.getElementById('pNome').value.trim();
+  const area = document.getElementById('pArea').value.trim();
+  const perfil = document.getElementById('pPerfil').value;
+  if(!/^[a-z0-9._-]+@bunge\.com$/i.test(email)){ toast('E-mail @bunge.com inválido.', true); return; }
+  if(!nome){ toast('Informe o nome.', true); return; }
+  if(S.pessoas.some(p=>p.email===email)){ toast('Este e-mail já está cadastrado.', true); return; }
+  put(T.PESSOAS, {id:uid(), email, nome, area, perfil, ativo:true, criadoEm:new Date().toISOString()})
+    .then(()=>{
+      auditar('criou pessoa','pessoa',email+' ('+perfil+')');
+      fechar('mPessoa');
+      ['pEmail','pNome','pArea'].forEach(i=>document.getElementById(i).value='');
+      document.getElementById('pPerfil').value='colaborador';
+      toast('Pessoa cadastrada.');
+      return carregarTudo();
+    }).then(renderTudo);
+}
+function excluirPessoa(id){
+  const p = S.pessoas.find(x=>x.id===id); if(!p) return;
+  if(!confirm('Excluir '+p.nome+'?')) return;
+  if(!temPermissao()){ toast('Identifique-se para excluir.', true); abrirLogin(); return; }
+  del(T.PESSOAS, id).then(()=>{
+    if(S.usuario && S.usuario.email===p.email) sair();
+    toast('Pessoa excluída.');
+    return carregarTudo();
+  }).then(renderTudo);
+}
+
+// ---------- backup ----------
+function abrirBackup(){
+  document.getElementById('bInfo').innerHTML =
+    '<b>'+S.tipos.length+'</b> tipos · <b>'+S.itens.length+'</b> itens de checklist · '
+    + '<b>'+S.equips.length+'</b> equipamentos · <b>'+S.pessoas.length+'</b> pessoas';
+  document.getElementById('bTxt').value='';
+  abrir('mBackup');
+}
+function pacote(){
+  return {
+    app:'equip-controle', versao:1, exportadoEm:new Date().toISOString(),
+    tabelas:{
+      [T.TIPOS]:S.tipos, [T.ITENS]:S.itens,
+      [T.EQUIPS]:S.equips, [T.PESSOAS]:S.pessoas
+    }
+  };
+}
+function exportar(){
+  const j = JSON.stringify(pacote(), null, 2);
+  const d = new Date();
+  const stamp = d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([j],{type:'application/json'}));
+  a.download = 'equipamentos-backup-'+stamp+'.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},400);
+  toast('Backup exportado.');
+}
+function copiarJSON(){
+  const j = JSON.stringify(pacote(), null, 2);
+  if(navigator.clipboard) navigator.clipboard.writeText(j).then(()=>toast('JSON copiado.'));
+  else { document.getElementById('bTxt').value=j; toast('JSON no campo de texto.'); }
+}
+function restaurar(){
+  const txt = document.getElementById('bTxt').value.trim();
+  if(!txt){ toast('Cole o JSON do backup.', true); return; }
+  if(!temPermissao()){ toast('Identifique-se para restaurar.', true); abrirLogin(); return; }
+  let dados;
+  try{ dados = JSON.parse(txt); }catch(e){ toast('JSON inválido.', true); return; }
+  const t = dados.tabelas || dados;
+  const ops = [];
+  Object.keys(t).forEach(nome=>{
+    if(!Object.values(T).includes(nome)) return;
+    (t[nome]||[]).forEach(obj=>{ if(obj && obj.id) ops.push(put(nome,obj)); });
+  });
+  Promise.all(ops).then(()=>{
+    toast('Backup restaurado: '+ops.length+' registros.');
+    fechar('mBackup');
+    return carregarTudo();
+  }).then(renderTudo).catch(e=>toast('Falha: '+e,true));
+}
+
+// ---------- render geral ----------
+function renderTudo(){
+  renderUsuario();
+  if(S.view==='painel') renderPainel();
+  else if(S.view==='retirada') renderRetirada();
+  else if(S.view==='devolucao') renderDevolucao();
+  else if(S.view==='tipos') renderTipos();
+  else if(S.view==='equip') renderEquip();
+  else if(S.view==='pessoas') renderPessoas();
+}
+
+
+/* =====================================================================
+   FASE 2 — RETIRADA, DEVOLUÇÃO COM FOTO E PAINEL
+   ===================================================================== */
+
+// ---------- estado das operacoes ----------
+const R = { step:1, equipId:null, colabEmail:null, checks:{}, obs:'' };
+const D = { step:1, movId:null, checks:{}, fotos:[], estado:'bom', obs:'', lacreFalta:false };
+
+function resetR(){ R.step=1; R.equipId=null; R.colabEmail=null; R.checks={}; R.obs=''; }
+function resetD(){ D.step=1; D.movId=null; D.checks={}; D.fotos=[]; D.estado='bom'; D.obs=''; }
+
+function hoje(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function fmtBR(iso){ if(!iso) return ''; const p=String(iso).slice(0,10).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso; }
+function fmtHora(iso){ if(!iso) return ''; const d=new Date(iso); return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR').slice(0,5); }
+function addDias(base, n){ const d=new Date(base); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function diasAtraso(previsto){ if(!previsto) return 0; const h=new Date(hoje()+'T12:00'); const p=new Date(previsto+'T12:00'); return Math.round((h-p)/86400000); }
+
+function equipPorTag(tag){ return S.equips.find(e=>e.tag===String(tag||'').toUpperCase()); }
+function equipPorId(id){ return S.equips.find(e=>e.id===id); }
+function colabPorEmail(em){ return S.pessoas.find(p=>p.email===String(em||'').toLowerCase()); }
+function movAberto(equipId){ return S.movs.find(m=>m.equipId===equipId && !m.dataDevolucao); }
+function prazoDe(e){ if(!e) return 1; const t=S.tipos.find(x=>x.id===e.tipoId); return e.prazoDias || (t?t.prazoPadraoDias:1); }
+function nomeEquip(e){ return e ? (e.tag + (e.descricao? ' · '+e.descricao : '')) : '—'; }
+
+// ---------- carregar movimentos/respostas/fotos ----------
+let carregouMovs = false;
+function carregarMovs(){
+  return Promise.all([todos(T.MOVS), todos(T.RESP), todos(T.FOTOS)]).then(([m,r,f])=>{
+    S.movs=m; S.resps=r; S.fotos=f; carregouMovs=true;
+  });
+}
+
+/* ================= PAINEL ================= */
+function renderPainel(){
+  const el = document.getElementById('viewPainel');
+  const abertos = S.movs.filter(m=>!m.dataDevolucao);
+  const atrasados = abertos.filter(m=>m.dataPrevista && diasAtraso(m.dataPrevista)>0);
+  const disp = S.equips.filter(e=>e.status==='disponivel' && e.ativo!==false);
+  const manut = S.equips.filter(e=>e.status==='manutencao');
+  const fora = S.equips.filter(e=>e.status==='emprestado');
+
+  const kpi = (rot,val,cor) => `
+    <div style="background:#fff;border-left:4px solid ${cor};border-radius:9px;padding:.85rem 1rem;box-shadow:0 1px 3px rgba(20,23,31,.08)">
+      <div style="font-size:.68rem;font-weight:700;letter-spacing:.05em;color:#64748b;text-transform:uppercase">${rot}</div>
+      <div style="font-size:1.8rem;font-weight:700;color:${cor};line-height:1.2">${val}</div>
+    </div>`;
+
+  let linhas = '';
+  if(!abertos.length){
+    linhas = '<div class="help" style="text-align:center;padding:1.4rem">Nenhum equipamento fora no momento. Tudo devolvido.</div>';
+  } else {
+    linhas = abertos.map(m=>{
+      const at = m.dataPrevista && diasAtraso(m.dataPrevista)>0;
+      const eq = equipPorId(m.equipId);
+      return `
+      <div class="item" style="${at?'border-color:#fca5a5;background:#fffafb':''}">
+        <div class="esq">
+          <div class="nome">${esc(m.tag)} <span style="font-weight:400;color:var(--muted);font-size:.85rem">· ${esc(eq&&eq.descricao?eq.descricao:m.tipoNome||'')}</span></div>
+          <div class="meta">
+            <span>👤 ${esc(m.colabNome||m.colabEmail)}</span>
+            <span>retirado ${fmtHora(m.dataRetirada)}</span>
+            <span class="pill ${at?'p-no':'p-info'}">${at? 'ATRASADO '+(diasAtraso(m.dataPrevista))+'d' : 'devolver até '+fmtBR(m.dataPrevista)}</span>
+            ${m.liberacaoEspecial?'<span class="pill p-w">liberação especial</span>':''}
+          </div>
+        </div>
+        <div class="acoes">
+          <button class="btn btn-pri btn-sm" onclick="iniciarDevolucao('${m.id}')">Devolver</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = `
+    <div class="panel">
+      <h2>Painel do balcão</h2>
+      <p class="sub">Quem está com o quê, e o que está disponível agora.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin-bottom:1.2rem">
+        ${kpi('Fora', fora.length, '#2E75B6')}
+        ${kpi('Atrasados', atrasados.length, atrasados.length?'#dc2626':'#548235')}
+        ${kpi('Disponíveis', disp.length, '#548235')}
+        ${kpi('Manutenção', manut.length, '#f59e0b')}
+      </div>
+      <h3 style="font-size:.85rem;color:var(--navy);margin:0 0 .6rem;text-transform:uppercase;letter-spacing:.04em">Equipamentos fora</h3>
+      <div class="lista">${linhas}</div>
+    </div>`;
+}
+
+/* ================= RETIRADA ================= */
+function renderRetirada(){
+  const el = document.getElementById('viewRetirada');
+  if(!S.equips.length){
+    el.innerHTML = `<div class="panel"><div class="vazio"><div class="ico">🔧</div>
+      <h3>Nenhum equipamento cadastrado</h3>
+      <p>Cadastre um equipamento antes de registrar retirada.</p>
+      <button class="btn btn-pri" onclick="irPara('equip')">Ir para Equipamentos</button></div></div>`;
+    return;
+  }
+  const passos = ['Equipamento','Colaborador','Checklist','Confirmar'];
+  const stepper = passos.map((p,i)=>{
+    const n=i+1;
+    const cls = n===R.step?'background:var(--navy);color:#fff':(n<R.step?'background:#e7f6d8;color:#3f6212':'background:#f8fafc;color:#64748b');
+    return `<button class="btn btn-sm" style="${cls};border:1px solid #e2e8f0" onclick="irR(${n})">${n<R.step?'✓':n} ${p}</button>`;
+  }).join('<span style="color:#cbd5e1">›</span>');
+
+  let corpo = '';
+  if(R.step===1){
+    const livres = S.equips.filter(e=>e.status==='disponivel' && e.ativo!==false);
+    corpo = `
+      <div class="fld" style="max-width:340px;margin-bottom:.8rem">
+        <label>Tag do equipamento</label>
+        <input id="rTag" placeholder="Digite ou escolha abaixo" autocomplete="off" oninput="filtraEquip(this.value)">
+      </div>
+      <div id="rLista">${livres.length? livres.map(e=>`
+        <div class="item" style="cursor:pointer" onclick="escolheEquip('${e.id}')">
+          <div class="esq"><div class="nome">${esc(e.tag)}</div>
+          <div class="meta"><span>${esc(e.descricao||nomeTipo(e.tipoId))}</span>
+          <span class="pill p-ok">disponível</span>
+          <span>${itensDoTipo(e.tipoId).length} itens</span></div></div>
+          <div class="acoes"><button class="btn btn-pri btn-sm">Selecionar</button></div>
+        </div>`).join('') : '<div class="help">Nenhum equipamento disponível. Todos estão fora ou em manutenção.</div>'}
+      </div>`;
+  } else if(R.step===2){
+    const eq = equipPorId(R.equipId);
+    const cols = S.pessoas.filter(p=>p.perfil==='colaborador'||p.perfil==='atendente'||p.perfil==='supervisor');
+    corpo = `
+      <div class="help" style="margin-bottom:.9rem">Equipamento: <b>${esc(nomeEquip(eq))}</b></div>
+      <div class="fld" style="max-width:360px;margin-bottom:.9rem">
+        <label>E-mail de quem vai retirar *</label>
+        <input id="rColab" placeholder="nome.sobrenome@bunge.com" autocomplete="off" spellcheck="false"
+               value="${esc(R.colabEmail||'')}" oninput="R.colabEmail=this.value.toLowerCase()">
+      </div>
+      ${cols.length?`<div class="help" style="margin-bottom:.6rem">Cadastrados:</div>
+      <div class="lista">${cols.map(p=>`
+        <div class="item" style="cursor:pointer" onclick="escolheColab('${p.email}')">
+          <div class="esq"><div class="nome">${esc(p.nome)}</div><div class="meta"><span>${esc(p.email)}</span>${p.area?'<span>· '+esc(p.area)+'</span>':''}</div></div>
+          <div class="acoes"><button class="btn btn-sec btn-sm">Usar</button></div>
+        </div>`).join('')}</div>`:''}
+      <div style="margin-top:1rem"><button class="btn btn-pri" onclick="rPasso2()">Continuar</button></div>`;
+  } else if(R.step===3){
+    const eq = equipPorId(R.equipId);
+    const its = itensDoTipo(eq.tipoId);
+    const faltando = its.filter(i=>i.obrigatorio && !R.checks[i.id]).length;
+    corpo = `
+      <div class="help" style="margin-bottom:.9rem">
+        <b>${esc(nomeEquip(eq))}</b> para <b>${esc(R.colabEmail)}</b><br>
+        Confira cada item antes de liberar. <b>${faltando}</b> obrigatório(s) pendente(s).
+      </div>
+      <div>${its.map((i,n)=>`
+        <label class="chk-item" style="cursor:pointer;${i.obrigatorio&&!R.checks[i.id]?'border-color:#fca5a5':''}">
+          <span class="num">${n+1}</span>
+          <input type="checkbox" ${R.checks[i.id]?'checked':''} onchange="marcaR('${i.id}',this.checked)">
+          <span style="flex:1;font-size:.87rem">${esc(i.texto)}</span>
+          ${i.obrigatorio?'<span class="pill p-vazio">obrigatório</span>':'<span class="pill p-ok">opcional</span>'}
+        </label>`).join('')}</div>
+      <div class="fld" style="margin-top:.9rem"><label>Observações</label>
+        <input id="rObs" value="${esc(R.obs)}" placeholder="opcional" oninput="R.obs=this.value"></div>
+      <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="irR(2)">Voltar</button>
+        <button class="btn btn-pri" ${faltando?'disabled style="opacity:.5"':''} onclick="rPasso3()">Continuar</button>
+      </div>`;
+  } else {
+    const eq = equipPorId(R.equipId);
+    const its = itensDoTipo(eq.tipoId);
+    const ok = its.filter(i=>R.checks[i.id]).length;
+    const prev = addDias(new Date().toISOString(), prazoDe(eq));
+    corpo = `
+      <div class="help" style="margin-bottom:1rem">
+        <b>Confirme a liberação</b>
+      </div>
+      <table style="font-size:.87rem">
+        <tr><td style="color:#64748b;padding:5px 0;width:130px">Equipamento</td><td><b>${esc(nomeEquip(eq))}</b></td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Colaborador</td><td>${esc(R.colabEmail)}</td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Checklist</td><td>${ok} de ${its.length} itens conferidos</td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Devolver até</td><td><b>${fmtBR(prev)}</b> (${prazoDe(eq)} dia${prazoDe(eq)===1?'':'s'})</td></tr>
+        ${R.obs?'<tr><td style="color:#64748b;padding:5px 0">Obs.</td><td>'+esc(R.obs)+'</td></tr>':''}
+      </table>
+      <div style="margin-top:1.2rem;display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="irR(3)">Voltar</button>
+        <button class="btn btn-pri" onclick="confirmarRetirada()">✅ Confirmar retirada</button>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="panel">
+      <h2>Retirar equipamento</h2>
+      <p class="sub">Checklist de conferência antes de liberar.</p>
+      <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem">${stepper}</div>
+      ${corpo}
+    </div>`;
+}
+
+function irR(n){ R.step=n; renderRetirada(); }
+function filtraEquip(q){
+  const box = document.getElementById('rLista');
+  const livres = S.equips.filter(e=>e.status==='disponivel' && e.ativo!==false);
+  const t = (q||'').toLowerCase();
+  const f = livres.filter(e=>e.tag.toLowerCase().includes(t) || (e.descricao||'').toLowerCase().includes(t));
+  box.innerHTML = f.length ? f.map(e=>`
+    <div class="item" style="cursor:pointer" onclick="escolheEquip('${e.id}')">
+      <div class="esq"><div class="nome">${esc(e.tag)}</div>
+      <div class="meta"><span>${esc(e.descricao||nomeTipo(e.tipoId))}</span><span class="pill p-ok">disponível</span></div></div>
+      <div class="acoes"><button class="btn btn-pri btn-sm">Selecionar</button></div>
+    </div>`).join('') : '<div class="help">Nada encontrado.</div>';
+}
+function escolheEquip(id){
+  const e = equipPorId(id);
+  if(!e) return;
+  if(!itensDoTipo(e.tipoId).length){ toast('O tipo deste equipamento não tem checklist.', true); return; }
+  R.equipId = id; R.checks={}; R.step=2; renderRetirada();
+}
+function escolheColab(email){
+  R.colabEmail = email;
+  document.getElementById('rColab').value = email;
+}
+function rPasso2(){
+  const em = (R.colabEmail||'').trim().toLowerCase();
+  if(!/^[a-z0-9._-]+@bunge\.com$/i.test(em)){ toast('Informe o e-mail @bunge.com de quem retira.', true); return; }
+  R.colabEmail = em; R.step=3; renderRetirada();
+}
+function marcaR(itemId, v){ R.checks[itemId]=v; renderRetirada(); }
+function rPasso3(){
+  const eq = equipPorId(R.equipId);
+  if(!eq) return;
+  const its = itensDoTipo(eq.tipoId);
+  const falt = its.filter(i=>i.obrigatorio && !R.checks[i.id]);
+  if(falt.length){
+    toast('Faltam '+falt.length+' item(ns) obrigatório(s) no checklist.', true);
+    return;
+  }
+  R.step=4; renderRetirada();
+}
+
+function confirmarRetirada(){
+  if(!temPermissao()){ toast('Identifique-se como atendente.', true); abrirLogin(); return; }
+  const eq = equipPorId(R.equipId);
+  const its = itensDoTipo(eq.tipoId);
+  const falt = its.filter(i=>i.obrigatorio && !R.checks[i.id]);
+  if(falt.length){ toast('Faltam '+falt.length+' item(ns) obrigatório(s).', true); return; }
+
+  const agr = new Date().toISOString();
+  const mov = {
+    id: uid(), equipId: eq.id, tag: eq.tag, tipoId: eq.tipoId,
+    tipoNome: nomeTipo(eq.tipoId),
+    colabEmail: R.colabEmail, colabNome: (colabPorEmail(R.colabEmail)||{}).nome || R.colabEmail,
+    dataRetirada: agr, dataPrevista: addDias(agr, prazoDe(eq)),
+    atendente: S.usuario.email, dataDevolucao: '', estadoDevolucao: '',
+    liberacaoEspecial:false, motivoLiberacao:'', observacoes: R.obs
+  };
+
+  const ops = [put(T.MOVS, mov)];
+  its.forEach(i=>{
+    ops.push(put(T.RESP, {
+      id: uid(), movId: mov.id, itemId: i.id, momento: 'retirada',
+      conforme: !!R.checks[i.id], textoItem: i.texto, obrigatorio: !!i.obrigatorio
+    }));
+  });
+  const eq2 = Object.assign({}, eq, { status:'emprestado', emUsoPor:R.colabEmail, desde:agr });
+  ops.push(put(T.EQUIPS, eq2));
+
+  Promise.all(ops).then(()=>{
+    auditar('retirou', 'movimento', eq.tag+' → '+R.colabEmail);
+    resetR();
+    toast('Retirada registrada: '+eq.tag);
+    return carregarTudo().then(carregarMovs);
+  }).then(()=>{ renderTudo(); }).catch(e=>toast('Falha: '+e,true));
+}
+
+/* ================= DEVOLUÇÃO ================= */
+function iniciarDevolucao(movId){
+  const m = S.movs.find(x=>x.id===movId);
+  if(!m) return;
+  resetD(); D.movId = movId; D.step = 2;
+  irPara('devolucao');
+}
+
+function renderDevolucao(){
+  const el = document.getElementById('viewDevolucao');
+  const abertos = S.movs.filter(m=>!m.dataDevolucao);
+
+  if(!D.movId){
+    el.innerHTML = `<div class="panel">
+      <h2>Devolver equipamento</h2>
+      <p class="sub">Escolha o equipamento que está voltando.</p>
+      ${abertos.length? '<div class="lista">'+abertos.map(m=>`
+        <div class="item" style="cursor:pointer" onclick="iniciarDevolucao('${m.id}')">
+          <div class="esq"><div class="nome">${esc(m.tag)}</div>
+            <div class="meta"><span>👤 ${esc(m.colabNome)}</span>
+            <span>desde ${fmtHora(m.dataRetirada)}</span>
+            <span class="pill ${m.dataPrevista&&diasAtraso(m.dataPrevista)>0?'p-no':'p-info'}">
+              ${m.dataPrevista&&diasAtraso(m.dataPrevista)>0?'atrasado':'prazo '+fmtBR(m.dataPrevista)}</span></div></div>
+          <div class="acoes"><button class="btn btn-pri btn-sm">Devolver</button></div>
+        </div>`).join('')+'</div>'
+      : '<div class="help" style="text-align:center;padding:1.4rem">Nenhum equipamento em uso. Não há o que devolver.</div>'}
+    </div>`;
+    return;
+  }
+
+  const m = S.movs.find(x=>x.id===D.movId);
+  const eq = equipPorId(m.equipId);
+  const its = eq ? itensDoTipo(eq.tipoId) : [];
+  const passos = ['Conferência','Foto','Confirmar'];
+  const stepper = passos.map((p,i)=>{
+    const n=i+1;
+    const cls = n===D.step?'background:var(--navy);color:#fff':(n<D.step?'background:#e7f6d8;color:#3f6212':'background:#f8fafc;color:#64748b');
+    return `<button class="btn btn-sm" style="${cls};border:1px solid #e2e8f0" onclick="irD(${n})">${n<D.step?'✓':n} ${p}</button>`;
+  }).join('<span style="color:#cbd5e1">›</span>');
+
+  let corpo = '';
+  if(D.step===1){
+    const falt = its.filter(i=>i.obrigatorio && !D.checks[i.id]).length;
+    corpo = `
+      <div class="help" style="margin-bottom:.9rem"><b>${esc(m.tag)}</b> retornando de <b>${esc(m.colabNome)}</b><br>
+        Confira o estado na devolução. <b>${falt}</b> obrigatório(s) pendente(s).</div>
+      <div>${its.map((i,n)=>`
+        <label class="chk-item" style="cursor:pointer;${i.obrigatorio&&!D.checks[i.id]?'border-color:#fca5a5':''}">
+          <span class="num">${n+1}</span>
+          <input type="checkbox" ${D.checks[i.id]?'checked':''} onchange="marcaD('${i.id}',this.checked)">
+          <span style="flex:1;font-size:.87rem">${esc(i.texto)}</span>
+          ${i.obrigatorio?'<span class="pill p-vazio">obrigatório</span>':'<span class="pill p-ok">opcional</span>'}
+        </label>`).join('')}</div>
+      <div class="row" style="margin-top:.9rem">
+        <div class="fld" style="max-width:220px"><label>Estado do equipamento</label>
+          <select id="dEstado" onchange="D.estado=this.value">
+            <option value="bom" ${D.estado==='bom'?'selected':''}>Bom — apto a uso</option>
+            <option value="ressalva" ${D.estado==='ressalva'?'selected':''}>Com ressalva</option>
+            <option value="danificado" ${D.estado==='danificado'?'selected':''}>Danificado — vai p/ manutenção</option>
+          </select></div>
+        <div class="fld"><label>Observações</label>
+          <input id="dObs" value="${esc(D.obs)}" placeholder="opcional" oninput="D.obs=this.value"></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="cancelarDevolucao()">Cancelar</button>
+        <button class="btn btn-pri" ${falt?'disabled style="opacity:.5"':''} onclick="irD(2)">Continuar</button>
+      </div>`;
+  } else if(D.step===2){
+    corpo = `
+      <div class="help" style="margin-bottom:.9rem">
+        Tire a foto do equipamento <b>como ele voltou</b>. É a evidência da conferência.
+        A foto é reduzida automaticamente antes de guardar.
+      </div>
+      <input type="file" id="dFoto" accept="image/*" capture="environment" multiple
+             style="display:none" onchange="pegaFotos(event)">
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-pri" onclick="document.getElementById('dFoto').click()">📷 Tirar / escolher foto</button>
+        <button class="btn btn-sec" onclick="pularFoto()">Pular foto</button>
+      </div>
+      <div id="dThumbs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem;margin-top:1rem"></div>
+      <div id="dFotoAviso" style="margin-top:.7rem"></div>
+      <div style="margin-top:1.2rem;display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="irD(1)">Voltar</button>
+        <button class="btn btn-pri" onclick="irD(3)">Continuar</button>
+      </div>`;
+    setTimeout(mostraThumbs, 30);
+  } else {
+    const itsOk = its.filter(i=>D.checks[i.id]).length;
+    const pend = its.filter(i=>i.obrigatorio && !D.checks[i.id]).length;
+    corpo = `
+      <div class="help" style="margin-bottom:1rem"><b>Confirme a devolução</b></div>
+      <table style="font-size:.87rem">
+        <tr><td style="color:#64748b;padding:5px 0;width:140px">Equipamento</td><td><b>${esc(m.tag)}</b></td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Retirado por</td><td>${esc(m.colabNome)}</td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Checklist</td><td>${itsOk} de ${its.length} conferidos${pend?' ⚠️ '+pend+' obrigatório(s) em falta':''}</td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Estado</td><td>${{bom:'Bom',ressalva:'Com ressalva',danificado:'Danificado'}[D.estado]}</td></tr>
+        <tr><td style="color:#64748b;padding:5px 0">Fotos</td><td>${D.fotos.length} foto(s)</td></tr>
+        ${D.obs?'<tr><td style="color:#64748b;padding:5px 0">Obs.</td><td>'+esc(D.obs)+'</td></tr>':''}
+      </table>
+      ${pend?'<div class="help" style="margin-top:.8rem;border-color:#fcd34d;background:#fffaf0">Há itens obrigatórios não conferidos. A devolução fica registrada <b>com ressalva</b>.</div>':''}
+      <div style="margin-top:1.2rem;display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="irD(2)">Voltar</button>
+        <button class="btn btn-pri" onclick="confirmarDevolucao()">✅ Confirmar devolução</button>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="panel">
+      <h2>Devolver equipamento</h2>
+      <p class="sub">${esc(m.tag)} · ${esc(m.colabNome)}</p>
+      <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-bottom:1.2rem">${stepper}</div>
+      ${corpo}
+    </div>`;
+}
+
+function irD(n){
+  if(n>D.step){
+    const m = S.movs.find(x=>x.id===D.movId);
+    const eq = m && equipPorId(m.equipId);
+    const its = eq ? itensDoTipo(eq.tipoId) : [];
+    const falt = its.filter(i=>i.obrigatorio && !D.checks[i.id]);
+    if(n===2 && falt.length){
+      toast('Faltam '+falt.length+' item(ns) obrigatório(s) na conferência.', true);
+      return;
+    }
+  }
+  D.step=n; renderDevolucao();
+}
+function marcaD(id,v){ D.checks[id]=v; renderDevolucao(); }
+function cancelarDevolucao(){ resetD(); renderDevolucao(); }
+function pularFoto(){
+  if(!D.fotos.length && !confirm('Devolver sem foto? A evidência fica mais fraca.')) return;
+  irD(3);
+}
+
+// ---------- foto: reduzir e guardar ----------
+function reduzirImagem(file){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      const MAX = 1280;
+      let w = img.width, h = img.height;
+      if(w > h && w > MAX){ h = Math.round(h*MAX/w); w = MAX; }
+      else if(h >= w && h > MAX){ w = Math.round(w*MAX/h); h = MAX; }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      cv.toBlob(b => b ? resolve({blob:b, w, h}) : reject(new Error('falha ao converter')), 'image/jpeg', 0.75);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('imagem inválida')); };
+    img.src = url;
+  });
+}
+
+function pegaFotos(ev){
+  const files = Array.prototype.slice.call(ev.target.files||[]);
+  ev.target.value = '';
+  if(!files.length) return;
+  toast('Processando '+files.length+' foto(s)…');
+  Promise.all(files.map(f=>reduzirImagem(f).then(r=>({nome:f.name, blob:r.blob, w:r.w, h:r.h})).catch(()=>null)))
+    .then(list=>{
+      list.filter(Boolean).forEach(f=>D.fotos.push(f));
+      mostraThumbs();
+      const kb = Math.round(D.fotos.reduce((s,f)=>s+(f.blob.size||0),0)/1024);
+      document.getElementById('dFotoAviso').innerHTML =
+        '<div class="help">'+D.fotos.length+' foto(s) · '+kb+' KB no total (já reduzidas)</div>';
+      toast('Foto(s) prontas.');
+    });
+}
+
+function mostraThumbs(){
+  const box = document.getElementById('dThumbs');
+  if(!box) return;
+  box.innerHTML = D.fotos.map((f,i)=>{
+    const u = URL.createObjectURL(f.blob);
+    return `<div style="position:relative;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+      <img src="${u}" style="width:100%;height:100px;object-fit:cover;display:block">
+      <button class="del" style="position:absolute;top:3px;right:3px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.85rem;line-height:1"
+        onclick="removeFoto(${i})">×</button>
+    </div>`;
+  }).join('');
+}
+function removeFoto(i){ D.fotos.splice(i,1); mostraThumbs(); }
+
+function confirmarDevolucao(){
+  if(!temPermissao()){ toast('Identifique-se como atendente.', true); abrirLogin(); return; }
+  const m = S.movs.find(x=>x.id===D.movId);
+  const eq = equipPorId(m.equipId);
+  const its = eq ? itensDoTipo(eq.tipoId) : [];
+  const agr = new Date().toISOString();
+  const pend = its.filter(i=>i.obrigatorio && !D.checks[i.id]).length;
+
+  const mov2 = Object.assign({}, m, {
+    dataDevolucao: agr,
+    atendenteDevolucao: S.usuario.email,
+    estadoDevolucao: (pend ? 'ressalva' : D.estado),
+    observacoes: (m.observacoes? m.observacoes+' | ' : '') + (D.obs||''),
+    teveRessalva: !!pend
+  });
+
+  const ops = [put(T.MOVS, mov2)];
+  its.forEach(i=>{
+    ops.push(put(T.RESP, {
+      id: uid(), movId: m.id, itemId: i.id, momento:'devolucao',
+      conforme: !!D.checks[i.id], textoItem: i.texto, obrigatorio: !!i.obrigatorio
+    }));
+  });
+  D.fotos.forEach((f,idx)=>{
+    ops.push(put(T.FOTOS, {
+      id: uid(), movId: m.id, momento:'devolucao',
+      tipo: idx===0?'equipamento':'equipamento',
+      arquivoBlob: f.blob, nome: f.nome, largura: f.w, altura: f.h,
+      criadoEm: agr
+    }));
+  });
+
+  const novoStatus = (D.estado==='danificado') ? 'manutencao' : 'disponivel';
+  ops.push(put(T.EQUIPS, Object.assign({}, eq, {
+    status: novoStatus, emUsoPor:'', desde:''
+  })));
+
+  Promise.all(ops).then(()=>{
+    auditar('devolveu','movimento', m.tag+' ('+novoStatus+')');
+    toast('Devolução registrada: '+m.tag);
+    resetD();
+    return carregarTudo().then(carregarMovs);
+  }).then(()=>{ irPara('painel'); }).catch(e=>toast('Falha: '+e,true));
+}
+
+// ---------- instalavel (PWA) ----------
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+// ---------- boot ----------
+abrirDB()
+  .then(()=>{
+    try{ const u = localStorage.getItem('equip-usuario'); if(u) S.usuario = {email:u, nome:''}; }catch(e){}
+    return carregarTudo();
+  })
+  .then(()=>{
+    renderTudo();
+    console.log('pronto: sem seed,', S.tipos.length, 'tipos');
+  })
+  .catch(e=>{
+    console.error('falha na inicializacao:', e);
+    document.getElementById('viewTipos').innerHTML =
+      '<div class="panel"><div class="vazio"><h3>Não consegui abrir o banco local</h3>'
+      +'<p>'+esc(e.message||e)+'</p></div></div>';
+  });
+
+</script>
+
+</body>
+</html>
