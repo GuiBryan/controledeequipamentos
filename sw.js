@@ -1,5 +1,5 @@
 /* Service Worker — Controle de Equipamentos */
-const VERSAO = 'equip-v3';
+const VERSAO = 'equip-v5';
 const CASCO = [
   './',
   './index.html',

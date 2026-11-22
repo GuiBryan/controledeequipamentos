@@ -29,10 +29,47 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* nav */
 main{max-width:1180px;margin:1.4rem auto 0;padding:0 1.3rem;display:flex;flex-direction:column;gap:1.1rem}
+/* ---- barra principal: 2 acoes grandes + opcoes ---- */
+.acoes-barra{display:flex;gap:.75rem;flex-wrap:wrap;align-items:stretch}
+.big-card{flex:1;min-width:200px;border:none;border-radius:14px;padding:1.15rem 1.3rem;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:.95rem;box-shadow:0 2px 8px rgba(20,23,31,.10);transition:transform .12s ease,box-shadow .12s ease;text-align:left}
+.big-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(20,23,31,.16)}
+.big-card:active{transform:translateY(0)}
+.big-card .ico{font-size:2rem;line-height:1;flex-shrink:0}
+.big-card .txt{display:flex;flex-direction:column;gap:.12rem;min-width:0}
+.big-card .t1{font-size:1.05rem;font-weight:800;letter-spacing:.2px}
+.big-card .t2{font-size:.76rem;font-weight:600;opacity:.85;line-height:1.35}
+.big-card.ret{background:linear-gradient(135deg,#2E75B6,#245a8d);color:#fff}
+.big-card.dev{background:linear-gradient(135deg,#548235,#3f6528);color:#fff}
+.big-card.pai{background:linear-gradient(135deg,#243F5E,#1a2f47);color:#fff}
+.big-card.on{outline:3px solid var(--verde-l);outline-offset:2px}
+.big-card .selo{background:rgba(255,255,255,.22);border-radius:999px;padding:2px 9px;font-size:.7rem;font-weight:700;margin-left:auto;flex-shrink:0}
+
+/* ---- dropdown de opcoes ---- */
+.opt-wrap{position:relative;flex:0 0 auto}
+.opt-menu{display:none;position:absolute;right:0;top:calc(100% + 8px);background:#fff;border-radius:11px;
+  box-shadow:0 12px 34px rgba(0,0,0,.22);min-width:250px;overflow:hidden;z-index:460;border:1px solid var(--border)}
+.opt-menu.show{display:block}
+.opt-item{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;background:none;border:none;
+  padding:11px 15px;font-size:.88rem;font-weight:600;cursor:pointer;color:var(--text);font-family:inherit}
+.opt-item:hover{background:#f1f5f9}
+.opt-item .oi{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.opt-item.on{background:#eef7e2;color:var(--verde)}
+.opt-div{height:1px;background:var(--border)}
+.opt-tit{font-size:.66rem;font-weight:800;letter-spacing:.07em;color:var(--muted);text-transform:uppercase;padding:8px 15px 4px}
+.opt-back{display:none;position:fixed;inset:0;z-index:450}
+.opt-back.show{display:block}
+
 .tabs{display:flex;gap:.45rem;flex-wrap:wrap;background:var(--surface);padding:.55rem;border-radius:var(--radius);box-shadow:0 1px 3px rgba(20,23,31,.08)}
 .tab{border:1px solid transparent;background:#f8fafc;color:var(--text);padding:8px 15px;border-radius:7px;font-weight:600;font-size:.84rem;cursor:pointer;font-family:inherit}
 .tab:hover{background:#eef2f7}
 .tab.active{background:var(--navy);color:#fff}
+@media(max-width:520px){
+  .acoes-barra{flex-direction:column}
+  .opt-wrap{width:100%}
+  .opt-wrap .big-card{width:100%}
+  .opt-menu{left:0;right:0;min-width:0}
+}
 
 /* painel */
 .panel{background:var(--surface);border-radius:var(--radius);box-shadow:0 1px 3px rgba(20,23,31,.08);padding:1.2rem 1.3rem}
@@ -123,14 +160,46 @@ main{max-width:1180px;margin:1.4rem auto 0;padding:0 1.3rem;display:flex;flex-di
 </header>
 
 <main>
-  <nav class="tabs" id="tabs">
-    <button class="tab" data-t="painel" onclick="irPara('painel')">📊 Painel</button>
-    <button class="tab active" data-t="retirada" onclick="irPara('retirada')">📤 Retirar</button>
-    <button class="tab" data-t="devolucao" onclick="irPara('devolucao')">📥 Devolver</button>
-    <button class="tab" data-t="equip" onclick="irPara('equip')">🔧 Equipamentos</button>
-    <button class="tab" data-t="tipos" onclick="irPara('tipos')">📋 Tipos e Checklists</button>
-    <button class="tab" data-t="pessoas" onclick="irPara('pessoas')">👥 Pessoas</button>
-  </nav>
+  <div class="acoes-barra" id="acoesBarra">
+    <button class="big-card ret" id="btnRetirar" onclick="irPara('retirada')">
+      <span class="ico">📤</span>
+      <span class="txt">
+        <span class="t1">RETIRAR</span>
+        <span class="t2">Entregar equipamento com checklist</span>
+      </span>
+    </button>
+    <button class="big-card dev" id="btnDevolver" onclick="irPara('devolucao')">
+      <span class="ico">📥</span>
+      <span class="txt">
+        <span class="t1">DEVOLVER</span>
+        <span class="t2">Receber de volta com foto</span>
+      </span>
+      <span class="selo" id="seloFora" style="display:none">0</span>
+    </button>
+    <div class="opt-wrap">
+      <button class="big-card pai" id="btnOpcoes" onclick="toggleOpt(event)">
+        <span class="ico">⚙️</span>
+        <span class="txt">
+          <span class="t1">OPÇÕES</span>
+          <span class="t2">Painel, equipamentos e cadastros</span>
+        </span>
+      </button>
+      <div class="opt-menu" id="optMenu">
+        <div class="opt-tit">Consultar</div>
+        <button class="opt-item" data-o="painel" onclick="irPara('painel'); fechaOpt()">
+          <span class="oi">📊</span> Painel do balcão</button>
+        <div class="opt-div"></div>
+        <div class="opt-tit">Cadastros</div>
+        <button class="opt-item" data-o="equip" onclick="irPara('equip'); fechaOpt()">
+          <span class="oi">🔧</span> Equipamentos</button>
+        <button class="opt-item" data-o="tipos" onclick="irPara('tipos'); fechaOpt()">
+          <span class="oi">📋</span> Tipos e checklists</button>
+        <button class="opt-item" data-o="pessoas" onclick="irPara('pessoas'); fechaOpt()">
+          <span class="oi">👥</span> Pessoas</button>
+      </div>
+    </div>
+  </div>
+  <div class="opt-back" id="optBack" onclick="fechaOpt()"></div>
 
   <section id="viewPainel" style="display:none"></section>
   <section id="viewRetirada"></section>
@@ -504,12 +573,42 @@ const VIEWS = {painel:'Painel', retirada:'Retirada', devolucao:'Devolucao',
                tipos:'Tipos', equip:'Equip', pessoas:'Pessoas'};
 function irPara(v){
   S.view = v;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.t===v));
   Object.keys(VIEWS).forEach(k=>{
     const el = document.getElementById('view'+VIEWS[k]);
     if(el) el.style.display = (k===v?'block':'none');
   });
+  // destaca o botao grande correspondente
+  const bR = document.getElementById('btnRetirar');
+  const bD = document.getElementById('btnDevolver');
+  const bO = document.getElementById('btnOpcoes');
+  if(bR) bR.classList.toggle('on', v==='retirada');
+  if(bD) bD.classList.toggle('on', v==='devolucao');
+  if(bO) bO.classList.toggle('on', ['painel','equip','tipos','pessoas'].includes(v));
+  // marca no menu qual esta aberto
+  document.querySelectorAll('.opt-item').forEach(x=>x.classList.toggle('on', x.dataset.o===v));
+  atualizaSeloFora();
   renderTudo();
+}
+function atualizaSeloFora(){
+  const el = document.getElementById('seloFora');
+  if(!el) return;
+  const n = (S.movs||[]).filter(m=>!m.dataDevolucao).length;
+  el.textContent = n;
+  el.style.display = n>0 ? 'inline-block' : 'none';
+}
+function toggleOpt(ev){
+  if(ev) ev.stopPropagation();
+  const m = document.getElementById('optMenu');
+  const b = document.getElementById('optBack');
+  const abrir = !m.classList.contains('show');
+  m.classList.toggle('show', abrir);
+  b.classList.toggle('show', abrir);
+}
+function fechaOpt(){
+  const m = document.getElementById('optMenu');
+  const b = document.getElementById('optBack');
+  if(m) m.classList.remove('show');
+  if(b) b.classList.remove('show');
 }
 
 // ---------- helpers de dados ----------
@@ -946,6 +1045,7 @@ function restaurar(){
 // ---------- render geral ----------
 function renderTudo(){
   renderUsuario();
+  atualizaSeloFora();
   if(S.view==='painel') renderPainel();
   else if(S.view==='retirada') renderRetirada();
   else if(S.view==='devolucao') renderDevolucao();
@@ -1460,6 +1560,20 @@ if('serviceWorker' in navigator){
   });
 }
 
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') fechaOpt(); });
+document.addEventListener('click', e=>{
+  const m=document.getElementById('optMenu');
+  if(m && m.classList.contains('show') && !e.target.closest('.opt-wrap')) fechaOpt();
+});
+
+
+// atalho do icone instalado: ?acao=retirada | ?acao=devolucao
+try{
+  const ac = new URLSearchParams(location.search).get('acao');
+  if(ac==='retirada' || ac==='devolucao') S.view = ac;
+}catch(e){}
+
 // ---------- boot ----------
 abrirDB()
   .then(()=>{
@@ -1467,7 +1581,8 @@ abrirDB()
     return carregarTudo();
   })
   .then(()=>{
-    renderTudo();
+    // usa irPara para aplicar o display das telas e o destaque dos botoes
+    irPara(S.view || 'retirada');
     console.log('pronto: sem seed,', S.tipos.length, 'tipos');
   })
   .catch(e=>{

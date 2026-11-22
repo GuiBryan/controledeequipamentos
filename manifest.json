@@ -2,7 +2,7 @@
   "name": "Controle de Equipamentos — EPI/EPC",
   "short_name": "Equipamentos",
   "description": "Controle de equipamentos sensíveis: checklist por tipo, retirada e devolução.",
-  "start_url": "./controle-equipamentos.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
@@ -33,6 +33,33 @@
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "id": "./index.html",
+  "shortcuts": [
+    {
+      "name": "Retirar equipamento",
+      "short_name": "Retirar",
+      "description": "Entregar equipamento com checklist",
+      "url": "./index.html?acao=retirada",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Devolver equipamento",
+      "short_name": "Devolver",
+      "description": "Receber equipamento de volta com foto",
+      "url": "./index.html?acao=devolucao",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }
